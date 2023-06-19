@@ -4,8 +4,8 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Mars wheater',
-  description: 'Fetch mars wheater from NASA Api',
+  title: 'SpaceX',
+  description: 'SpaceX last launch data',
 };
 
 export default function RootLayout({ children }) {

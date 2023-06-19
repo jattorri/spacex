@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './page.module.css';
 import axios from 'axios';
 const GET_LATEST_LAUNCH_URL = 'https://api.spacexdata.com/v5/launches/latest';
@@ -17,22 +17,24 @@ const Grid = () => {
       .catch((r) => console.log('fetch data error', r));
   }, []);
 
+  const getTripulation = useCallback(async () => {
+    if (launch && launch.data) {
+      let promises = launch.data.crew.map((person) => {
+        return axios.get(GET_ONE_CREW_MEMBER_URL + `${person.crew}`);
+      });
+      const tripulation = await Promise.all(promises);
+      setTripulation(tripulation);
+    }
+  }, [launch]);
+
   useEffect(() => {
-    let tripulation = [];
     if (launch.data) {
-      launch.data;
       axios
         .get(GET_ONE_ROCKET_URL + `${launch.data.rocket}`)
         .then(setRocket)
         .catch((e) => console.log('error fetichng rocket data', e));
-      launch.data.crew.forEach((person) => {
-        axios.get(GET_ONE_CREW_MEMBER_URL + `${person.crew}`).then((p) => {
-          console.log('p', p.data.name);
-          tripulation.unshift(p.data.name);
-        });
-        setTripulation(tripulation);
-      });
     }
+    getTripulation();
   }, [launch]);
 
   return (
@@ -61,9 +63,10 @@ const Grid = () => {
           Tripulation <span>-&gt;</span>
         </h2>
         <div className='d-flex'>
-          {tripulation.map((person, key) => {
-            return <p key={key}>{person}</p>;
-          })}
+          {tripulation &&
+            tripulation.map((person, key) => {
+              return <p key={key}>{person.data.name}</p>;
+            })}
         </div>
       </a>
       <a
